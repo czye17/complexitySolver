@@ -19,19 +19,31 @@ def opt_x_numeric(func):
             opt_x = x
     return float(opt_time), float(opt_x)
 
+def format_res(res):
+    return float(res.fun), float(res.x)
+
 def mult_approx_opt():
     # return minimize(mult_approx_time, 0.5, method = 'Nelder-Mead')
     res = minimize_scalar(mult_approx_time)
-    return float(res.fun), float(res.x)
+    return format_res(res)
     
 def mult_approx_time(x):
     mm_time = omega(1, 1-x, 1, USE_NEW_VALUES)
     time = max(mm_time, 1.5 + x)
     return time
 
+def det_mult_approx_opt(k=7):
+    res = minimize_scalar(partial(det_mult_approx_time, k))
+    return format_res(res)
+
+def det_mult_approx_time(k, x):
+    mm_time = omega(1, 1-x, 1, USE_NEW_VALUES)
+    time = max(mm_time, 1 + 2*x, 2 + x/k, 1 + ((3*k - 4)*x)/k)
+    return time
+
 def add_approx_opt(k=4, bounded=False):
     res = minimize_scalar(partial(add_approx_time, k, bounded))
-    return float(res.fun), float(res.x)
+    return format_res(res)
 
 def add_approx_time(k, bounded, x):
     if bounded:
@@ -68,6 +80,9 @@ def mult_approx_long_time(k, l, x):
 def generate_results():
     print('\n\n---- 2 Multiplicative Approximation ----')
     print(mult_approx_opt())
+
+    print('\n\n---- Deterministic 2 Multiplicative Approximation ----')
+    print(det_mult_approx_opt())
 
     print('\n\n---- Additive Approximation----')
     for k in range(4, 12, 2):
