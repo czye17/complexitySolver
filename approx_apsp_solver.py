@@ -3,7 +3,7 @@ from functools import partial
 import numpy as np
 from scipy.optimize import minimize_scalar
 
-from omega import omega
+from omega import omega, read_omegas
 
 X_RESOLUTION = 1000000
 L_RESOLUTION = 200
@@ -22,75 +22,77 @@ def opt_x_numeric(func):
 def format_res(res):
     return float(res.fun), float(res.x)
 
-def mult_approx_opt():
+def mult_approx_opt(omega_dict):
     # return minimize(mult_approx_time, 0.5, method = 'Nelder-Mead')
-    res = minimize_scalar(mult_approx_time)
+    res = minimize_scalar(partial(mult_approx_time, omega_dict))
     return format_res(res)
     
-def mult_approx_time(x):
-    mm_time = omega(1, 1-x, 1, USE_NEW_VALUES)
+def mult_approx_time(omega_dict, x):
+    mm_time = omega(1, 1-x, 1, omega_dict)
     time = max(mm_time, 1.5 + x)
     return time
 
-def det_mult_approx_opt(k=7):
-    res = minimize_scalar(partial(det_mult_approx_time, k))
+def det_mult_approx_opt(omega_dict, k=7):
+    res = minimize_scalar(partial(det_mult_approx_time, k, omega_dict))
     return format_res(res)
 
-def det_mult_approx_time(k, x):
-    mm_time = omega(1, 1-x, 1, USE_NEW_VALUES)
+def det_mult_approx_time(k, omega_dict, x):
+    mm_time = omega(1, 1-x, 1, omega_dict)
     time = max(mm_time, 1 + 2*x, 2 + x/k, 1 + ((3*k - 4)*x)/k)
     return time
 
-def add_approx_opt(k=4, bounded=False):
-    res = minimize_scalar(partial(add_approx_time, k, bounded))
+def add_approx_opt(omega_dict, k=4, bounded=False):
+    res = minimize_scalar(partial(add_approx_time, k, omega_dict, bounded))
     return format_res(res)
 
-def add_approx_time(k, bounded, x):
+def add_approx_time(k, omega_dict, bounded, x):
     if bounded:
-        mm_time = omega(in_a, in_b, in_c, USE_NEW_VALUES)
+        mm_time = omega(in_a, in_b, in_c, omega_dict)
     else:
         in_a = 1-((k-2)*x)/(k+2)
         in_b = 1 - x
         in_c = 1 - ((k-4)*x)/(k+2)
         in_mu = 1
-        mm_time = ((in_a + in_b + in_mu) + omega(in_a, in_b, in_c, USE_NEW_VALUES))/2
+        mm_time = ((in_a + in_b + in_mu) + omega(in_a, in_b, in_c, omega_dict))/2
 
     time = max(mm_time, 2 + (2*x)/(k+2))
     return time
 
-def mult_approx_long_opt(k=4):
+def mult_approx_long_opt(omega_dict, k=4):
     opt_x, opt_l = -1, -1
     opt_time = 3
     for l in range(20, L_RESOLUTION):
-        res = minimize_scalar(partial(mult_approx_long_time, k, l))
+        res = minimize_scalar(partial(mult_approx_long_time, omega_dict, k, l))
         if res.fun < opt_time:
             opt_time = res.fun
             opt_x = res.x
             opt_l = l
     return float(opt_time), float(opt_x), opt_l
 
-def mult_approx_long_time(k, l, x):
+def mult_approx_long_time(omega_dict, k, l, x):
     in_a = 1 - ((k - 2)*x)/(2*(l - k + 2))
     in_b = 1 - x
     in_c = 1 - ((k - 4)*x)/(2*(l - k + 2))
-    mm_time = omega(in_a, in_b, in_c, USE_NEW_VALUES)
+    mm_time = omega(in_a, in_b, in_c, omega_dict)
     time = max(mm_time, 2 + x/(l - k + 2), 1.5 + x)
     return time
 
 def generate_results():
+    omega_dict = read_omegas('/Users/christopherye/Documents/UCSD/Projects/complexitySolver/advxxz.csv')
+
     print('\n\n---- 2 Multiplicative Approximation ----')
-    print(mult_approx_opt())
+    print(mult_approx_opt(omega_dict))
 
     print('\n\n---- Deterministic 2 Multiplicative Approximation ----')
-    print(det_mult_approx_opt())
+    print(det_mult_approx_opt(omega_dict))
 
     print('\n\n---- Additive Approximation----')
     for k in range(4, 12, 2):
-        print(add_approx_opt(k))
+        print(add_approx_opt(omega_dict, k))
 
     print('\n\n---- Long Path Multiplicative Approximation----')
     for k in range(4, 10, 2):
-        print(mult_approx_long_opt(k))
+        print(mult_approx_long_opt(omega_dict, k))
     print('\n\n')
 
 
