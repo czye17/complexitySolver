@@ -58,6 +58,19 @@ def add_approx_time(k, omega_dict, bounded, x):
     time = max(mm_time, 2 + (2*x)/(k+2))
     return time
 
+def weighted_add_approx_opt(omega_dict, k=2):
+    res = minimize_scalar(partial(weighted_add_approx_time, k, omega_dict))
+    return format_res(res)
+
+def weighted_add_approx_time(k, omega_dict, x):
+    in_a = 1-((k-1)*x)/(k+1)
+    in_b = 1 - x
+    in_c = 1 - ((k-2)*x)/(k+1)
+    mm_time = omega(in_a, in_b, in_c, omega_dict)
+
+    time = max(mm_time, 2 + x/(k+1))
+    return time
+
 def mult_approx_long_opt(omega_dict, k=4):
     opt_x, opt_l = -1, -1
     opt_time = 3
@@ -91,11 +104,15 @@ def generate_results():
         print(add_approx_opt(omega_dict, k))
 
     print('\n\n---- Bounded Additive Approximation----')
-    for k in range(4, 12, 2):
+    for k in range(4, 14, 2):
         print(add_approx_opt(omega_dict, k, bounded=True))
 
+    print('\n\n---- Bounded Additive Approximation----')
+    for k in range(1, 6):
+        print(weighted_add_approx_opt(omega_dict, k))
+
     print('\n\n---- Long Path Multiplicative Approximation----')
-    for k in range(4, 10, 2):
+    for k in range(4, 14, 2):
         print(mult_approx_long_opt(omega_dict, k))
     print('\n\n')
 
