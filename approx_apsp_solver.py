@@ -63,13 +63,18 @@ def weighted_add_approx_opt(omega_dict, k=2):
     return format_res(res)
 
 def weighted_add_approx_time(k, omega_dict, x):
-    in_a = 1-((k-1)*x)/(k+1)
-    in_b = 1 - x
-    in_c = 1 - ((k-2)*x)/(k+1)
-    mm_time = omega(in_a, in_b, in_c, omega_dict)
+    if k == 1:
+        mm_time = omega(1, 1-x, 1, omega_dict)
+        time = max(mm_time, 2 + x/2)
+        return time 
+    else:
+        in_a = 1-((k-1)*x)/(k+1)
+        in_b = 1 - x
+        in_c = 1 - ((k-2)*x)/(k+1)
+        mm_time = omega(in_a, in_b, in_c, omega_dict)
 
-    time = max(mm_time, 2 + x/(k+1))
-    return time
+        time = max(mm_time, 2 + x/(k+1))
+        return time
 
 def mult_approx_long_opt(omega_dict, k=4):
     opt_x, opt_l = -1, -1
