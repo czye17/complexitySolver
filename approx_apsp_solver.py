@@ -46,12 +46,12 @@ def add_approx_opt(omega_dict, k=4, bounded=False):
     return format_res(res)
 
 def add_approx_time(k, omega_dict, bounded, x):
+    in_a = 1-((k-2)*x)/(k+2)
+    in_b = 1 - x
+    in_c = 1 - ((k-4)*x)/(k+2)
     if bounded:
         mm_time = omega(in_a, in_b, in_c, omega_dict)
     else:
-        in_a = 1-((k-2)*x)/(k+2)
-        in_b = 1 - x
-        in_c = 1 - ((k-4)*x)/(k+2)
         in_mu = 1
         mm_time = ((in_a + in_b + in_mu) + omega(in_a, in_b, in_c, omega_dict))/2
 
@@ -89,6 +89,10 @@ def generate_results():
     print('\n\n---- Additive Approximation----')
     for k in range(4, 12, 2):
         print(add_approx_opt(omega_dict, k))
+
+    print('\n\n---- Bounded Additive Approximation----')
+    for k in range(4, 12, 2):
+        print(add_approx_opt(omega_dict, k, bounded=True))
 
     print('\n\n---- Long Path Multiplicative Approximation----')
     for k in range(4, 10, 2):
