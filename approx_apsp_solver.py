@@ -107,7 +107,7 @@ def generate_results():
     for k in range(4, 14, 2):
         print(add_approx_opt(omega_dict, k, bounded=True))
 
-    print('\n\n---- Bounded Additive Approximation----')
+    print('\n\n---- Weighted Additive Approximation----')
     for k in range(1, 6):
         print(weighted_add_approx_opt(omega_dict, k))
 
