@@ -36,4 +36,5 @@ def alg_test(omega_dict):
 
 if __name__ == '__main__':
     omega_dict = read_omegas('/Users/christopherye/Documents/UCSD/Projects/complexitySolver/advxxz.csv')
-    alg_test(omega_dict)
+    # alg_test(omega_dict)
+    print(omega(2/3, 1, 1, omega_dict))
